@@ -1,26 +1,29 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
-import ProductsPage from './pages/ProductsPage';
-import SalePage from './pages/SalePage';
-import CustomersPage from './pages/CustomersPage';
+import AIAssistantPage from './pages/AIAssistantPage';
 import OrdersPage from './pages/OrdersPage';
+import CustomersPage from './pages/CustomersPage';
+import ProductsPage from './pages/ProductsPage';
+import FinancePage from './pages/FinancePage';
+import SettingsPage from './pages/SettingsPage';
 import { Sidebar, Topbar } from './components/shell';
 
 const TITLES = {
-  dashboard: "Welcome to Dashboard",
-  products: "Products",
-
-  sale: "New Sale",
-  customers: "Customers",
-  orders: "Sales / Orders",
+  dashboard: "Dashboard Overview",
+  "ai-assistant": "AI Store Assistant",
+  orders: "All Orders",
+  "orders-all": "All Orders",
+  "orders-details": "Order Details Inspector",
+  customers: "Customer Directory",
+  products: "Product Catalog & Inventory",
+  finance: "Billing & Finance Overview",
+  settings: "Admin Settings",
 };
 
-
-
-export default  function App() {
+export default function App() {
   const [loggedIn, setLoggedIn] = useState(() => localStorage.getItem('loggedIn') === 'true');
-  const [user, setUser] = useState(() => localStorage.getItem('user') || "Owner");
+  const [user, setUser] = useState(() => localStorage.getItem('user') || "Admin Store Owner");
   const [page, setPage] = useState(() => localStorage.getItem('page') || "dashboard");
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -32,7 +35,7 @@ export default  function App() {
 
   const handleLogin = (email) => {
     const name = email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-    setUser(name || "Owner");
+    setUser(name || "Admin Store Owner");
     setLoggedIn(true);
   };
 
@@ -44,26 +47,39 @@ export default  function App() {
 
   const PageComponent = useMemo(() => {
     switch (page) {
-      case "products": return <ProductsPage />;
+      case "ai-assistant":
+        return <AIAssistantPage />;
 
-      case "sale": return <SalePage />;
-      case "customers": return <CustomersPage />;
-      case "orders": return <OrdersPage />;
-      default: return <DashboardPage setPage={setPage} />;
+      case "orders":
+      case "orders-all":
+        return <OrdersPage viewMode="all" setPage={setPage} />;
+      case "orders-details":
+        return <OrdersPage viewMode="details" setPage={setPage} />;
+
+      case "customers":
+        return <CustomersPage />;
+
+      case "products":
+        return <ProductsPage />;
+
+      case "finance":
+        return <FinancePage />;
+
+      case "settings":
+        return <SettingsPage />;
+
+      default:
+        return <DashboardPage setPage={setPage} />;
     }
   }, [page]);
 
   return (
-    <div className="w-full min-h-screen bg-[#F3F4F6]">
+    <div className="w-full min-h-screen bg-[#F3F4F6] text-gray-900 font-sans">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        .font-display { font-family: 'Fraunces', serif; }
-        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         * { font-family: 'Inter', sans-serif; }
-        .text-ink { color: #171410; }
-        .text-stone { color: #8D8477; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-thumb { background: #E4DFD5; border-radius: 8px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 99px; }
         input:focus { outline: none; }
       `}</style>
 
@@ -71,9 +87,15 @@ export default  function App() {
         <LoginPage onLogin={handleLogin} />
       ) : (
         <div className="flex min-h-screen">
-          <Sidebar page={page} setPage={setPage} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} onLogout={handleLogout} />
+          <Sidebar
+            page={page}
+            setPage={setPage}
+            mobileOpen={mobileOpen}
+            setMobileOpen={setMobileOpen}
+            onLogout={handleLogout}
+          />
           <div className="flex-1 min-w-0">
-            <Topbar title={TITLES[page]} user={user} onLogout={handleLogout} setMobileOpen={setMobileOpen} />
+            <Topbar title={TITLES[page]} user={user} setMobileOpen={setMobileOpen} />
             {PageComponent}
           </div>
         </div>
